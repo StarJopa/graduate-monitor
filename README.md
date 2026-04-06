@@ -30,7 +30,7 @@ cat > README.md << 'EOF'
 ```bash
 # 1. Клонировать репозиторий
 git clone <URL-репозитория>
-cd alumni-monitoring
+cd graduate-monitoring
 
 # 2. Запустить инфраструктуру
 docker compose -f infra/docker-compose.yml up -d
