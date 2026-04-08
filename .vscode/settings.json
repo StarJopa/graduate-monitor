@@ -8,5 +8,22 @@
     "source.organizeImports": "explicit"
   },
   "typescript.tsdk": "frontend/node_modules/typescript/lib",
-  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"]
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "sqltools.connections": [
+    {
+      "ssh": "Disabled",
+      "previewLimit": 50,
+      "server": "127.0.0.1",
+      "port": 5433,
+      "driver": "PostgreSQL",
+      "name": "Graduate Monitor DB",
+      "database": "graduate_monitor",
+      "username": "admin"
+    }
+  ]
 }
