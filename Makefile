@@ -10,9 +10,9 @@ setup:
 	$(MAKE) seed
 
 install-db:
-	@echo "🐳 Запуск PostgreSQL и Redis..."
+	@echo "Запуск PostgreSQL и Redis..."
 	docker compose -f infra/docker-compose.yml up -d --wait
-	@echo "⏳ Ожидание инициализации БД..."
+	@echo "Ожидание инициализации БД..."
 	@sleep 5
 
 install-backend:
@@ -42,4 +42,4 @@ run:
 clean:
 	docker compose -f infra/docker-compose.yml down -v
 	rm -rf backend/.venv frontend/node_modules
-	@echo "🧹 Окружение очищено"
+	@echo "Окружение очищено"
