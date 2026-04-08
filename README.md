@@ -27,21 +27,15 @@
 
 ### Установка
 ```bash
-# 1. Клонировать репозиторий
-git clone <URL-репозитория>
-cd graduate-monitoring
+git clone https://github.com/StarJopa/graduate-monitor.git
+cd graduate-monitor
 
-# 2. Запустить инфраструктуру
-docker compose -f infra/docker-compose.yml up -d
+# 1. Копирование шаблонов .env
+cp infra/.env.example infra/.env
+cp backend/.env.example backend/.env
 
-# 3. Настроить бэкенд
-cd backend
-python3.12 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+# 2. Установка зависимостей, запуск БД, миграции и seed-данных
+make setup
 
-# 4. Настроить фронтенд
-cd ../frontend
-npm install
-npm run dev
+# 3. Запуск серверов разработки
+make run
