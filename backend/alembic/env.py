@@ -13,8 +13,7 @@ from app.core.config import settings
 config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
-
-# Переопределяем URL из alembic.ini на реальный из .env
+    
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL_SYNC)
 
 target_metadata = Base.metadata

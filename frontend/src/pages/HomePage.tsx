@@ -2,6 +2,8 @@ import { FileTextOutlined, TrophyOutlined, UserOutlined } from '@ant-design/icon
 import { Card, Col, Row, Statistic } from 'antd';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
+import AddUserForm from '../components/AddUserForm';
+
 const data = [
     { name: 'Трудоустроено', value: 65 },
     { name: 'Продолжают обучение', value: 20 },
@@ -11,6 +13,7 @@ const COLORS = ['#52c41a', '#1890ff', '#faad14'];
 
 const HomePage = () => (
     <div>
+        <AddUserForm />
         <Row gutter={16} style={{ marginBottom: 24 }}>
             <Col span={8}><Card><Statistic title="Выпускников 2025" value={142} prefix={<UserOutlined />} /></Card></Col>
             <Col span={8}><Card><Statistic title="Достижений" value={89} prefix={<TrophyOutlined />} /></Card></Col>
