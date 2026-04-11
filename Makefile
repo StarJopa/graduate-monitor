@@ -30,10 +30,13 @@ install-frontend:
 	npm install
 
 seed:
-	@echo "Применение миграций и наполнение БД..."
-	cd backend
-	.venv/bin/alembic upgrade head
-	.venv/bin/python -m scripts.seed
+	@echo "🌱 Применение миграций..."
+	@cd backend && \
+	if ! .venv/bin/python -c "from sqlalchemy import create_engine, inspect; e=create_engine('$(shell grep DB_NAME backend/.env | cut -d= -f2)'); print('OK' if 'users' in inspect(e).get_table_names() else 'NO_TABLE')" 2>/dev/null | grep -q "NO_TABLE"; then \
+	  .venv/bin/alembic upgrade head; \
+	else \
+	  echo "✅ Таблицы уже существуют, пропускаем миграцию"; \
+	fi
 
 run:
 	@echo "Запуск серверов разработки..."

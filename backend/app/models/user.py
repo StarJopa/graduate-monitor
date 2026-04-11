@@ -1,5 +1,7 @@
+# backend/app/models/user.py
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Boolean
+from sqlalchemy.orm import relationship
 from app.db.base import Base
 
 class User(Base):
@@ -11,3 +13,5 @@ class User(Base):
     full_name = Column(String(255), nullable=True)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    
+    achievements = relationship("Achievement", back_populates="user", cascade="all, delete-orphan")

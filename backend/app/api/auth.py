@@ -16,22 +16,33 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
     if exists.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email уже зарегистрирован")
     
-    db_user = User(email=user_in.email, hashed_password=get_password_hash(user_in.password), full_name=user_in.full_name)
+    db_user = User(
+        email=user_in.email, 
+        hashed_password=get_password_hash(user_in.password), 
+        full_name=user_in.full_name
+    )
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)
     return db_user
 
-@router.post("/login")
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+@router.post("/login", response_model=Token)
+async def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),  
+    db: AsyncSession = Depends(get_db)
+):
     result = await db.execute(select(User).where(User.email == form_data.username))
     user = result.scalar_one_or_none()
     
     if not user or not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный email или пароль")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Неверный email или пароль",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     
     if not user.is_active:
         raise HTTPException(status_code=400, detail="Пользователь деактивирован")
         
-    access_token = create_access_token(data={"sub": str(user.id)})
+    access_token = create_access_token(data={"sub": str(user.id), "email": user.email})
     return {"access_token": access_token, "token_type": "bearer"}

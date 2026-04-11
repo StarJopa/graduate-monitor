@@ -10,5 +10,8 @@ class UserResponse(BaseModel):
     email: str
     full_name: str | None
     is_active: bool
-
     model_config = {"from_attributes": True}
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
