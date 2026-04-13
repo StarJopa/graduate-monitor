@@ -17,8 +17,8 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email уже зарегистрирован")
     
     db_user = User(
-        email=user_in.email, 
-        hashed_password=get_password_hash(user_in.password), 
+        email=user_in.email,
+        hashed_password=get_password_hash(user_in.password),
         full_name=user_in.full_name
     )
     db.add(db_user)

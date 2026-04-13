@@ -7,11 +7,14 @@ import { useAppStore } from '../store/useAppStore';
 const COLORS = ['#52c41a', '#1890ff', '#faad14', '#722ed1'];
 
 const DashboardPage = () => {
+    // === ДЕСТРУКТУРИЗАЦИЯ ИЗ STORE ===
     const { user, achievements, stats, fetchDashboardData, addAchievement } = useAppStore();
+
+    // === ЛОКАЛЬНЫЕ STATE И ФОРМА ===
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [form] = Form.useForm();
 
-    // Загружаем данные при монтировании
+    // Загружаем данные при монтировании компонента
     useEffect(() => {
         fetchDashboardData();
     }, [fetchDashboardData]);
@@ -40,24 +43,40 @@ const DashboardPage = () => {
         { title: 'Описание', dataIndex: 'description', key: 'description', ellipsis: true }
     ];
 
-    // Добавление достижения
+    // === ОБРАБОТЧИК ДОБАВЛЕНИЯ ДОСТИЖЕНИЯ ===
     const handleAddAchievement = async (values: any) => {
         try {
             await addAchievement({
-                ...values,
-                date: values.date.format('YYYY-MM-DD')
+                title: values.title,
+                level: values.level,
+                description: values.description,
+                date: values.date // Input type="date" возвращает "YYYY-MM-DD"
             });
-            message.success('Достижение добавлено!');
+
+            message.success('✅ Достижение успешно добавлено!');
             setIsModalOpen(false);
             form.resetFields();
+            fetchDashboardData(); // Обновляем данные с сервера
         } catch (err: any) {
-            message.error(err.message || 'Ошибка сохранения');
+            console.error('❌ Ошибка добавления:', err);
+
+            const detail = err.response?.data?.detail;
+            let errorMsg = 'Ошибка сохранения данных';
+
+            if (detail) {
+                if (Array.isArray(detail)) {
+                    errorMsg = detail.map((e: any) => `${e.loc?.join('.')} → ${e.msg}`).join('; ');
+                } else {
+                    errorMsg = typeof detail === 'string' ? detail : JSON.stringify(detail);
+                }
+            }
+            message.error(`❌ ${errorMsg}`);
         }
     };
 
     return (
         <div>
-            {/* Приветствие */}
+            {/* Приветствие с ФИО */}
             <Card style={{ marginBottom: 24 }}>
                 <h2>
                     👋 Добро пожаловать, {user?.full_name || user?.email || 'Пользователь'}!
@@ -88,7 +107,7 @@ const DashboardPage = () => {
                 </Col>
             </Row>
 
-            {/* Кнопка добавления + Диаграмма */}
+            {/* Кнопка добавления + Таблица + Диаграмма */}
             <Row gutter={24}>
                 <Col span={16}>
                     <Card
@@ -134,13 +153,13 @@ const DashboardPage = () => {
                 </Col>
             </Row>
 
-            {/* Модальное окно добавления */}
+            {/* Модальное окно добавления достижения */}
             <Modal
                 title="Новое достижение"
                 open={isModalOpen}
                 onCancel={() => setIsModalOpen(false)}
                 footer={null}
-                destroyOnClose // Очищает форму при закрытии
+                destroyOnClose
             >
                 <Form form={form} onFinish={handleAddAchievement} layout="vertical">
                     <Form.Item name="title" label="Название" rules={[{ required: true, message: 'Введите название' }]}>
@@ -170,42 +189,6 @@ const DashboardPage = () => {
             </Modal>
         </div>
     );
-};
-
-const handleAddAchievement = async (values: any) => {
-    try {
-        // Отправляем данные в стейт
-        await addAchievement({
-            title: values.title,
-            level: values.level,
-            description: values.description,
-            date: values.date // <Input type="date"> возвращает строку "YYYY-MM-DD"
-        });
-
-        message.success('✅ Достижение успешно добавлено!');
-        setIsModalOpen(false);
-        form.resetFields();
-
-        // Принудительно обновляем данные с сервера, чтобы отобразить изменения
-        fetchDashboardData();
-    } catch (err: any) {
-        console.error('❌ Ошибка добавления:', err);
-
-        // Парсим ошибки FastAPI (массив или строка)
-        const detail = err.response?.data?.detail;
-        let errorMsg = 'Ошибка сохранения данных';
-
-        if (detail) {
-            if (Array.isArray(detail)) {
-                // FastAPI возвращает массив ошибок валидации
-                errorMsg = detail.map((e: any) => `${e.loc?.join('.')} → ${e.msg}`).join('; ');
-            } else {
-                errorMsg = typeof detail === 'string' ? detail : JSON.stringify(detail);
-            }
-        }
-
-        message.error(`❌ ${errorMsg}`);
-    }
 };
 
 export default DashboardPage;
