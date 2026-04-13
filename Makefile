@@ -18,11 +18,15 @@ install-db:
 	@sleep 5
 
 install-backend:
-	@echo "Создание venv и установка зависимостей Python..."
+	@echo "🐍 Создание venv и установка зависимостей Python..."
 	cd backend
 	python3.12 -m venv .venv
-	.venv/bin/pip install --upgrade pip
-	.venv/bin/pip install -r requirements.txt
+	.venv/bin/pip install --upgrade pip --default-timeout=100
+	.venv/bin/pip install -r requirements.txt \
+		--default-timeout=100 \
+		--retries 2 \
+		--index-url https://pypi.tuna.tsinghua.edu.cn/simple \
+		|| .venv/bin/pip install -r requirements.txt --default-timeout=100 --retries 5
 
 install-frontend:
 	@echo "⚛️  Установка зависимостей Node.js..."
