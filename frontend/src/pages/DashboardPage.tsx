@@ -140,21 +140,22 @@ const DashboardPage = () => {
                 open={isModalOpen}
                 onCancel={() => setIsModalOpen(false)}
                 footer={null}
+                destroyOnClose // Очищает форму при закрытии
             >
                 <Form form={form} onFinish={handleAddAchievement} layout="vertical">
-                    <Form.Item name="title" label="Название" rules={[{ required: true }]}>
+                    <Form.Item name="title" label="Название" rules={[{ required: true, message: 'Введите название' }]}>
                         <Input placeholder="Например: Победитель олимпиады" />
                     </Form.Item>
 
-                    <Form.Item name="level" label="Уровень" rules={[{ required: true }]}>
-                        <Select>
+                    <Form.Item name="level" label="Уровень" rules={[{ required: true, message: 'Выберите уровень' }]}>
+                        <Select placeholder="Выберите уровень">
                             <Select.Option value="региональный">🏙️ Региональный</Select.Option>
                             <Select.Option value="федеральный">🇷🇺 Федеральный</Select.Option>
                             <Select.Option value="международный">🌍 Международный</Select.Option>
                         </Select>
                     </Form.Item>
 
-                    <Form.Item name="date" label="Дата" rules={[{ required: true }]}>
+                    <Form.Item name="date" label="Дата" rules={[{ required: true, message: 'Выберите дату' }]}>
                         <Input type="date" />
                     </Form.Item>
 
@@ -169,6 +170,42 @@ const DashboardPage = () => {
             </Modal>
         </div>
     );
+};
+
+const handleAddAchievement = async (values: any) => {
+    try {
+        // Отправляем данные в стейт
+        await addAchievement({
+            title: values.title,
+            level: values.level,
+            description: values.description,
+            date: values.date // <Input type="date"> возвращает строку "YYYY-MM-DD"
+        });
+
+        message.success('✅ Достижение успешно добавлено!');
+        setIsModalOpen(false);
+        form.resetFields();
+
+        // Принудительно обновляем данные с сервера, чтобы отобразить изменения
+        fetchDashboardData();
+    } catch (err: any) {
+        console.error('❌ Ошибка добавления:', err);
+
+        // Парсим ошибки FastAPI (массив или строка)
+        const detail = err.response?.data?.detail;
+        let errorMsg = 'Ошибка сохранения данных';
+
+        if (detail) {
+            if (Array.isArray(detail)) {
+                // FastAPI возвращает массив ошибок валидации
+                errorMsg = detail.map((e: any) => `${e.loc?.join('.')} → ${e.msg}`).join('; ');
+            } else {
+                errorMsg = typeof detail === 'string' ? detail : JSON.stringify(detail);
+            }
+        }
+
+        message.error(`❌ ${errorMsg}`);
+    }
 };
 
 export default DashboardPage;

@@ -37,7 +37,7 @@ interface AppState {
     logout: () => void;
     checkAuth: () => void;
     fetchDashboardData: () => Promise<void>;
-    addAchievement: (data: Omit<Achievement, 'id'>) => Promise<void>;
+    addAchievement: (data: { title: string; date: string; level: string; description?: string }) => Promise<void>;
 }
 
 const API_BASE = 'http://127.0.0.1:8000/api/v1';
@@ -137,10 +137,12 @@ export const useAppStore = create<AppState>()(
             },
 
             // Добавление достижения
-            addAchievement: async (data: Omit<Achievement, 'id'>) => {
-                const res = await axios.post<Achievement>(`${API_BASE}/achievements`, data);
+            addAchievement: async (data) => {
+                const res = await axios.post(`${API_BASE}/achievements`, data);
+                const newAch = res.data;
+
                 set(state => ({
-                    achievements: [...state.achievements, res.data],
+                    achievements: [...state.achievements, newAch],
                     stats: {
                         ...state.stats,
                         total_achievements: state.stats.total_achievements + 1,
@@ -150,7 +152,7 @@ export const useAppStore = create<AppState>()(
                         }
                     }
                 }));
-            }
+            },
         }),
         {
             name: 'graduate-monitor-auth',
